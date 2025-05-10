@@ -25,6 +25,7 @@ For information on Waiting until elements are present in the HTML see:
     https://selenium-python.readthedocs.io/waits.html
 """
 import logging
+import time
 from behave import when, then
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select, WebDriverWait
@@ -104,7 +105,51 @@ def step_impl(context, element_name):
 # to get the element id of any button
 ##################################################################
 
-## UPDATE CODE HERE ##
+##################################################################
+#  B U T T O N   C L I C K S
+##################################################################
+@when('I press the "{button}" button')
+def step_impl(context, button):
+    """Click a button whose id is '<button-text-lowercase>-btn' """
+    element_id = f"{button.lower()}-btn"
+    context.driver.find_element(By.ID, element_id).click()
+    time.sleep(0.2)        # brief pause so DOM updates before assertions
+
+
+##################################################################
+#  F L A S H   M E S S A G E S
+##################################################################
+@then('I should see "{name}" in the results')
+def step_impl(context, name):
+    found = WebDriverWait(context.driver, context.wait_seconds).until(
+        expected_conditions.text_to_be_present_in_element(
+            (By.ID, 'search_results'),
+            name
+        )
+    )
+    assert(found)
+
+
+##################################################################
+#  R E S U L T S   T A B L E   C H E C K S
+##################################################################
+
+
+@then('I should not see "{name}" in the results')
+def step_impl(context, name):
+    element = context.driver.find_element_by_id('search_results')
+    assert(name not in element.text)
+
+@then('I should see the message "{message}"')
+def step_impl(context, message):
+    found = WebDriverWait(context.driver, context.wait_seconds).until(
+        expected_conditions.text_to_be_present_in_element(
+            (By.ID, 'flash_message'),
+            message
+        )
+    )
+    assert(found)
+
 
 ##################################################################
 # This code works because of the following naming convention:
